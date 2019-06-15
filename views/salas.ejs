@@ -1,0 +1,91 @@
+<%- include('head'); -%>
+
+
+    <div class="mt-5 container">
+        <h1>Salas</h1> 
+        <div class="row">
+            <div class="col-md-12">
+                <form class="form-inline">
+                    <div class="input-group mb-2 mr-sm-2">
+                        <label>Sala</label>
+                        <select class="form-control browser-default custom-select"
+                        id="salasMenu">
+                            <option selected disable >Seleccione una sala</option>
+                            <option value="Sala:1" disable >Sala 1</option>
+                            <option value="Sala:2" disable >Sala 2</option>
+                            <option value="Sala:3" disable >Sala 3</option>
+                        </select>
+                    </div>
+                    <label class="sr-only">text message</label>
+                    <input type="text" id="textMessage" class="form-control" 
+                        placeholder="mensaje"
+                    name="" value="">
+                    <label class="sr-only">username</label>
+                    <div class="input-group mb-2 mr-sm-2" >
+                        <div class="input-group-text" >@</div>
+                        <input type="text" id="autor" 
+                        placeholder="usuario"
+                        class="form-control" name="" value="">
+                    </div>
+                    <button type="submit" 
+                        id="sendMessage"
+                    class="btn btn-primary mb-2">Enviar</button>
+                    
+                </form>
+            </div>    
+            <div class="col-md-12">
+                <ul class="list-group">
+                    <li class="list-group-item">dkfjlsdkjf</li>
+                </ul>
+            </div>
+        </div>   
+    </div>
+
+
+
+ <%- include('scripts'); -%>   
+
+    <script>
+        const socket = io();
+
+        // esatblecer la sala seleccionada
+        let room = "";
+
+        // crear el evento cambio de sala
+        $('#salasMenu').change( () =>{
+            room = $('#salasMenu').val();
+            
+            // conectar cliente a una sala
+            socket.emit('unir:sala', room);
+        }); 
+
+        // preparar el mensaje
+        $('#sendMessage').click(function (e){
+            e.preventDefault();
+            if(room == ""){
+                alert('Debe establecer una sala para un chat');
+            }else{
+                // estructurar mensaje
+                let message = {
+                    text: $('#textMessage').val(),
+                    user: $('#autor').val()
+                };
+                // suscribirse al evento de escucha de mensajes para la sala
+                socket.emit('mensaje:room', {room, message});
+            }
+        });
+
+
+        const addLastComment = (message) => {
+            $('.list-group').append(`<li class="list-group-item">
+            <strong> ${message.user} </strong>  : ${message.text}
+            </li>`);
+        }
+
+        // suscripcion a los mensajes del server -> emit
+        socket.on('mensaje:room:respuesta', data => {
+            console.log(data);
+            addLastComment(data);
+        })
+    </script>
+<%- include('footer'); -%>

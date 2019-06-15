@@ -1,0 +1,103 @@
+<%- include('head'); -%>
+    
+            <div class="jumbotron card card-image" style="background-image: url(https://mdbootstrap.com/img/Photos/Others/gradient1.jpg);">
+                <div class="text-white text-center">
+                  <div>
+                    <h2 class="card-title h1-responsive pt-3 mb-2 font-bold"><strong>Stock Imagenes</strong></h2>
+                    <p class="mx-5 mb-5">Lorem ipsumus minus error nisi architecto nulla ipsum dignissimos. Odit sed qui, dolorum!
+                    </p>
+                    <a class="btn btn-outline-white btn-md"><i class="fas fa-clone left"></i> Agregar POST</a>
+                  </div>
+                </div>
+              </div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-8" id="cards">
+                <!--Card-->
+                
+                <!--/.Card-->
+            </div>     
+            <div class="col-4"> 
+            <form class="text-center border border-light p-5">
+
+    <p class="h4 mb-4">Postear Imagen</p>
+
+    <!-- Email -->
+    <input type="text" id="url" class="form-control mb-4" placeholder="url foto">
+
+    <!-- Password -->
+    <input type="text" id="description" class="form-control mb-4" placeholder="Descripcion">
+    <input type="text" id="autor" class="form-control mb-4" placeholder="Autor">
+
+
+    <!-- Sign in button -->
+    <button class="btn btn-info btn-block my-4" id="post" type="submit">Postear</button>
+
+  
+</form>
+            </div>
+        </div>
+    <br><br>
+    <div id="msjs" style="border: solid 1 px; height: 300px">
+
+    </div>
+    </div>
+   
+
+
+
+
+ <%- include('scripts'); -%>   
+
+    <script>
+        const socket = io();
+
+        const msj = document.getElementById('description');
+        const remitente = document.getElementById('autor');
+        const url = document.getElementById('url');
+
+        const btn = document.getElementById('post')
+        btn.addEventListener('click', (e)=>{
+            e.preventDefault();
+
+            /*alert(JSON.stringify({
+                description: msj.value,
+                autor: remitente.value,
+                url: url.value
+            }));*/
+            socket.emit('post', {
+                description: msj.value,
+                autor: remitente.value,
+                url: url.value
+            });
+        }) ;
+        
+        const mensajes = $('#cards');
+        console.log(mensajes);
+        // escucha canal
+        socket.on('post:respuesta', data => {
+            console.log(data)
+            mensajes.append(`
+                <div class="card default-color-dark">
+                    <!--Card image-->
+                    <div class="view">
+                        <img src="${data.url}" width="200%" class="card-img-top" alt="photo">
+                        <a href="#">
+                        <div class="mask rgba-white-slight"></div>
+                        </a>
+                    </div>
+                    <!--Card content-->
+                    <div class="card-body text-center">
+                        <!--Title-->
+                        <h4 class="card-title white-text">${data.autor}</h4>
+                        <p class="card-text white-text">${data.description}</p>
+                        <a href="#" class="btn btn-outline-white btn-md waves-effect">Button</a>
+                    </div>
+
+                </div>
+            `);
+        });
+    </script>
+
+ <%- include('footer'); -%>   
